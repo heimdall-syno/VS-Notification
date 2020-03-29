@@ -6,7 +6,7 @@ import os, sys, argparse
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(cur_dir, "utils"))
 from movie import move_get_releases, movie_get_name
-from mail import mail_create_header, mail_get_addresses, mail_send
+from mail import mail_get_addresses, mail_send
 from htmls import html_add_header, html_add_closing
 from htmls import html_add_category, html_add_items
 
@@ -49,9 +49,6 @@ def main():
     if not categories:
         exit("Info: There are no new items for any category")
 
-    ## Create Mail
-    message = mail_create_header(args)
-
     ## Create a html-structure and add all categories and items
     content = html_add_header(args)
     for category in categories:
@@ -61,7 +58,7 @@ def main():
     content = html_add_closing(args, content)
 
     ## Send the mail via sendmail (postfix) command
-    mail_send(message, content)
+    mail_send(args, content)
 
 if __name__ == "__main__":
     main()

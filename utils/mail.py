@@ -34,35 +34,24 @@ def mail_get_addresses(args):
     if args.receivers == "all": mails = admin_mails + user_mails
     return mails
 
-def mail_create_header(args):
-    """ Create a MIMEMultiPart mail header.
-
-    Arguments:
-        args {Namespace} -- Namespace containing all arguments.
-
-    Returns:
-        MIMEMultipart -- Instance of a MIMEMultipart header.
-    """
-
-    message = MIMEMultipart('alternative')
-    message['From'] = "{} <{}>".format(args.name, args.address)
-    message['To'] = "; ".join(args.receivers)
-    if args.date:
-        td = datetime.today()
-        current_day = datetime.strftime(datetime(td.year, td.month, td.day), "%d %B %Y")
-        message['Subject'] = '{subject} since {date}'.format(subject=args.subject, date=current_day)
-    else:
-        message['Subject'] = '{subject}'.format(subject=args.subject)
-    return message
-
-def mail_send(message, content):
+def mail_send(args, content):
     """ Send the mail via sendmail (postfix) command
 
     Arguments:
-        message {MIMEMultipart} -- Instance of a MIMEMultipart header.
+        args {Namespace} -- Namespace containing all arguments.
         content {string}        -- HTML content as string.
     """
 
-    message.attach(MIMEText(content, 'html'))
-    p = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
-    p.communicate(message.as_bytes())
+    for receiver in args.receivers:
+        message = MIMEMultipart('alternative')
+        message['From'] = "{} <{}>".format(args.name, args.address)
+        message['To'] = receiver
+        if args.date:
+            td = datetime.today()
+            current_day = datetime.strftime(datetime(td.year, td.month, td.day), "%d %B %Y")
+            message['Subject'] = '{subject} since {date}'.format(subject=args.subject, date=current_day)
+        else:
+            message['Subject'] = '{subject}'.format(subject=args.subject)
+        message.attach(MIMEText(content, 'html'))
+        p = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
+        p.communicate(message.as_bytes())
