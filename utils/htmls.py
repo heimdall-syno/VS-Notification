@@ -133,6 +133,7 @@ def html_add_items(content, category, items):
         if (os.path.basename(category) != "Filme"):
             movie_name, season = movie_name.replace(category, "").split(os.sep)[1:3]
             season = "- {} ".format(season)
+            movie_season = "{}{}".format(movie_name, season)
 
         ## Movie name correction
         else:
@@ -140,7 +141,9 @@ def html_add_items(content, category, items):
             movie_name = movie_name.replace("oe", "ö").replace("ue", "ü").replace("ae", "ä")
 
         ## Check for duplicates
-        if (movie_name in history):
+        if (os.path.basename(category) == "Filme" and movie_name in history):
+            continue
+        elif (os.path.basename(category) != "Filme" and movie_season in history):
             continue
 
         ## Search for the movie/series and add the item to the html code
@@ -154,7 +157,9 @@ def html_add_items(content, category, items):
                     content = html_add_item_image(content, movie, season, movie_name, movie_url)
                 else:
                     content = html_add_item_without_image(content, movie, season, movie_name, movie_url)
-
-                history.append(movie_name)
+                if (os.path.basename(category) == "Filme"):
+                    history.append(movie_name)
+                else:
+                    history.append(movie_season)
     content = content + '<p>&nbsp;</p>'
     return content
