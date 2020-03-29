@@ -63,5 +63,5 @@ def move_get_releases(args):
         with open(changelog, 'r') as f: cat_items = f.readlines()
         cat_items = [i.replace("\n", "").split(',') for i in cat_items]
         cat_items = [i[1] for i in cat_items if datetime.strptime(i[0], "%Y-%m-%d") > since and os.path.isfile(i[1])]
-        if cat_items: items.append((mount, list(set(cat_items))))
-    return items
+        if cat_items: items.append((mount, sorted(list(set(cat_items)))))
+    return sorted(items)
