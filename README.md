@@ -6,6 +6,30 @@ It's based on an automated toolchain which download, convert, rename and relocat
 
 Check out the the basic toolchain, starting with VS-Transmission (https://github.com/heimdall-syno/VS-Transmission).
 
+## Overview of the VS-Package components
+```
++---------------------------------------------------------------------------------+
+|                                  Synology DSM                                   |
++---------------------------------------------------------------------------------+
+|                  +--------------------+  +-----------------+                    |
+|                  |       Docker       |  |      Docker     |                    |
+|                  |transmission.openVpn|  |     Handbrake   |                    |
+|                  +--------------------+  +-----------------+                    |
+| +------------+   | +---------------+  |  | +-------------+ |  +---------------+ |
+| |VS-SynoIndex|   | |VS-Transmission|  |  | | VS-Handbrake| |  |VS-Notification| |
+| |   (Task)   +---->+   (Script)    +------>+   (Script)  +--->+    (Task)     | |
+| +------------+   | +---------------+  |  | +-------------+ |  +---------------+ |
+|                  +--------------------+  +-----------------+                    |
+|                                                                                 |
++---------------------------------------------------------------------------------+
+```
+
+Check out the other components:
+    VS-SynoIndex:      https://github.com/heimdall-syno/VS-SynoIndex
+    VS-Transmission:   https://github.com/heimdall-syno/VS-Transmission
+    VS-Handbrake:      https://github.com/heimdall-syno/VS-Handbrake
+    VS-Playlist-Share: https://github.com/heimdall-syno/VS-Playlist-Share
+
 ## Quick Start
 
 1. Clone the repository inside an arbitrary directory on the filesystem
