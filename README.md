@@ -6,7 +6,7 @@ It's based on an automated toolchain which download, convert, rename and relocat
 
 Check out the the basic toolchain, starting with VS-Transmission (https://github.com/heimdall-syno/VS-Transmission).
 
-## Overview of the VS-Package components
+## Overview of the VS-Components
 ```
 +---------------------------------------------------------------------------------+
 |                                  Synology DSM                                   |
@@ -25,10 +25,14 @@ Check out the the basic toolchain, starting with VS-Transmission (https://github
 ```
 
 Check out the other components:
-    VS-SynoIndex:      https://github.com/heimdall-syno/VS-SynoIndex
-    VS-Transmission:   https://github.com/heimdall-syno/VS-Transmission
-    VS-Handbrake:      https://github.com/heimdall-syno/VS-Handbrake
-    VS-Playlist-Share: https://github.com/heimdall-syno/VS-Playlist-Share
+
+VS-SynoIndex:      https://github.com/heimdall-syno/VS-SynoIndex
+
+VS-Transmission:   https://github.com/heimdall-syno/VS-Transmission
+
+VS-Handbrake:      https://github.com/heimdall-syno/VS-Handbrake
+
+VS-Playlist-Share: https://github.com/heimdall-syno/VS-Playlist-Share
 
 ## Quick Start
 
