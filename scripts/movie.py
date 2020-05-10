@@ -1,6 +1,8 @@
 import os
 from datetime import datetime, timedelta
 from collections import Counter
+from os.path import isdir, join
+from prints import debugmsg, errmsg, infomsg
 
 def delimiter_get(filename):
     """ Get the delimiter of the current movie file.
@@ -37,7 +39,7 @@ def movie_get_name(category, movie_path):
         movie_name.append(token)
     return " ".join(movie_name)
 
-def move_get_releases(args):
+def movie_get_releases(args):
     """ Get all new "releases" sorted by their category for the passed interval.
         All changelog files of mounts are filtered by the date.
 
@@ -50,18 +52,24 @@ def move_get_releases(args):
 
     ## Get all mounts of the main volume
     volume_path = os.path.join(os.sep, "volume1")
-    mounts = [os.path.join(volume_path, d) for d in os.listdir(volume_path) if os.path.isdir(os.path.join(volume_path, d))]
+    mounts = [m for m in os.listdir(volume_path) if isdir(join(volume_path, m))]
+    mounts = [join(volume_path, m) for m in mounts if "@" not in m]
     since = datetime.today() - timedelta(days=args.interval)
     since = since.replace(hour=0, minute=0, second=0, microsecond=0)
 
     ## Get all items per category (mount)
-    items = []
+    items, invalid = ([] for _ in range(2))
     for mount in mounts:
         changelog = os.path.join(mount, "changelog.txt")
         if not os.path.isfile(changelog):
+            invalid.append(mount)
             continue
         with open(changelog, 'r') as f: cat_items = f.readlines()
-        cat_items = [i.replace("\n", "").split(',') for i in cat_items]
-        cat_items = [i[1] for i in cat_items if datetime.strptime(i[0], "%Y-%m-%d") > since and os.path.isfile(i[1])]
-        if cat_items: items.append((mount, sorted(list(set(cat_items)))))
+        cat_items = [i.replace('\n', '').split(',') for i in cat_items]
+        cat_items = [i[1] for i in cat_items if datetime.strptime(i[0], "%Y-%m-%d") > since]
+        cat_items = sorted(list(set(cat_items)))
+        if cat_items:
+            items.append((mount, cat_items))
+            debugmsg("Releases for mount", "Mounts", (mount, ','.join(cat_items)))
+    infomsg("Skipped following mounts due to no changelog file", "Mounts", (','.join(invalid),))
     return sorted(items)

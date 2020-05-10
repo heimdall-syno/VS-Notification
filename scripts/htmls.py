@@ -1,5 +1,9 @@
+import logging
+logging.getLogger('imdbpy').setLevel(logging.WARNING)
+logging.getLogger('imdb').setLevel(logging.WARNING)
 import os, imdb, textwrap
 from movie import movie_get_name
+from prints import debugmsg, errmsg, infomsg
 
 def html_add_header(args):
     """ Add the HTML header.
@@ -139,11 +143,17 @@ def html_add_items(content, category, items):
         else:
             movie_name = movie_get_name(category, os.path.dirname(movie_name))
             movie_name = movie_name.replace("oe", "ö").replace("ue", "ü").replace("ae", "ä")
+            ultra_hd = ["4K", "2160p", "UHD", "HDR"]
+            if any(u for u in ultra_hd if u in movie_name):
+                infomsg("Skip entry due to 4K resolution", "HTML", (movie_name,))
+                continue
 
         ## Check for duplicates
         if (os.path.basename(category) == "Filme" and movie_name in history):
+            infomsg("Skip entry due to duplicate", "HTML", (movie_name,))
             continue
         elif (os.path.basename(category) != "Filme" and movie_season in history):
+            infomsg("Skip entry due to duplicate", "HTML", (movie_season,))
             continue
 
         ## Search for the movie/series and add the item to the html code
@@ -155,8 +165,10 @@ def html_add_items(content, category, items):
             if movie:
                 if 'cover url' in movie:
                     content = html_add_item_image(content, movie, season, movie_name, movie_url)
+                    infomsg("Added image entry for entry", "HTML", (movie_name, movie, season))
                 else:
                     content = html_add_item_without_image(content, movie, season, movie_name, movie_url)
+                    infomsg("Added plain entry for entry", "HTML", (movie_name, movie, season))
                 if (os.path.basename(category) == "Filme"):
                     history.append(movie_name)
                 else:

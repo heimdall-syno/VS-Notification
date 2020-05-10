@@ -2,19 +2,39 @@
 ##             Scope: Host-system              ##
 #################################################
 
-import os, sys, argparse
+import os, sys, argparse, logging
 cur_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(cur_dir, "utils"))
-from movie import move_get_releases, movie_get_name
+sys.path.append(os.path.join(cur_dir, "scripts"))
+sys.path.append(os.path.join(cur_dir, "VS-Utils"))
+from movie import movie_get_releases, movie_get_name
 from mail import mail_get_addresses, mail_send
 from htmls import html_add_header, html_add_closing
 from htmls import html_add_category, html_add_items
+from prints import init_logging, debugmsg, errmsg, infomsg
+from scope import scope_get
+
+def check_path(log):
+    if os.path.isdir(log):
+        return log
+    else:
+        raise NotADirectoryError(log)
 
 def check_interval(interval):
     inv = int(interval)
     if inv <= 0:
         raise argparse.ArgumentTypeError("Error: Invalid parater for argument \"--interval\"")
     return inv
+
+def init_notification_log(args):
+    ## Initialize the logging
+    if (args.log):
+        cfg = argparse.Namespace()
+        cfg.log_dir = args.log
+        cfg.log_level = logging.DEBUG
+        init_logging(args, cfg)
+    else:
+        init_logging(None, None)
+    debugmsg("-" * 35, "Notification")
 
 def parse_arguments():
     """ Parse all shell arguments.
@@ -32,8 +52,10 @@ def parse_arguments():
     parser.add_argument('-r','--receivers', help='Receiver mode', choices=['admin', 'users', 'all'], required=True)
     parser.add_argument('-d','--date', help='Add release date to subject', action='store_true')
     parser.add_argument('-i','--interval', help='Notification interval (days)', type=check_interval, required=True)
+    parser.add_argument('-l','--log', help='Logging directory', type=check_path)
     args = parser.parse_args()
     args.scriptdir = cur_dir
+    args.scope = scope_get()
     return args
 
 def main():
@@ -41,13 +63,16 @@ def main():
     ## Parse all shell arguments
     args = parse_arguments()
 
+    ## Initialize the logging
+    init_notification_log(args)
+
     ## Get all users and mail address of the current system
     args.receivers = mail_get_addresses(args)
 
     ## Get all categories and the corresponding items
-    categories = move_get_releases(args)
+    categories = movie_get_releases(args)
     if not categories:
-        exit("Info: There are no new items for any category")
+        infomsg("No new items for any category", "Notification"); exit()
 
     ## Create a html-structure and add all categories and items
     content = html_add_header(args)
